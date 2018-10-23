@@ -19,13 +19,17 @@ class ItemsViewController: UITableViewController {
         //Create an instance of UITableViewCell, with default appearance
 //        let cell = UITableViewCell(style: .value1, reuseIdentifier: "UITableViewCell")
 
-        let cell = tableView.dequeueReusableCell(withIdentifier: "UITableViewCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ItemCell", for: indexPath) as! ItemCell
         //Set text on the cell with item description that is at nth index of items,
         // where n = row this cell will appear in on the tableview
         let item = itemStore.allItems[indexPath.row]
 
-        cell.textLabel?.text = item.name
-        cell.detailTextLabel?.text = "$\(item.valueInDollars)"
+        cell.nameLabel.text = item.name
+        cell.serialNumberLabel.text = item.serialNumber
+        let dollarValue = item.valueInDollars
+
+        cell.valueLabel.textColor = (dollarValue < 50) ? UIColor.green : UIColor.red
+        cell.valueLabel.text = "\(dollarValue)"
 
         return cell
     }
@@ -39,6 +43,9 @@ class ItemsViewController: UITableViewController {
         let insets = UIEdgeInsets(top: statusBarHeight, left: 0, bottom: 0, right: 0)
         tableView.contentInset = insets
         tableView.scrollIndicatorInsets = insets
+
+        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.estimatedRowHeight = 65
     }
 
     @IBAction func addNewItem(_ sender: UIButton) {
