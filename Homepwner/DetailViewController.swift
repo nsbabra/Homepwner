@@ -8,19 +8,34 @@
 
 import UIKit
 
-class DetailViewController: UIViewController, UITextFieldDelegate {
+class DetailViewController: UIViewController, UITextFieldDelegate, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
     
     @IBOutlet var nameField: UITextField!
     @IBOutlet var serialNumberField: UITextField!
     @IBOutlet var valueField: UITextField!
 
     @IBOutlet var dateLabel: UILabel!
+    @IBOutlet var imageView: UIImageView!
+
+    @IBAction func takePicture(_ sender: UIBarButtonItem) {
+        let imagePicker = UIImagePickerController()
+
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            imagePicker.sourceType = .camera
+        } else {
+            imagePicker.sourceType = .photoLibrary
+        }
+        imagePicker.delegate = self
+
+        present(imagePicker, animated: true, completion: nil)
+    }
 
     var item: Item! {
         didSet {
             navigationItem.title = item.name
         }
     }
+    var imageStore: ImageStore!
 
     @IBAction func backgroundTapped(_ sender: UITapGestureRecognizer) {
         view.endEditing(true)
@@ -48,6 +63,7 @@ class DetailViewController: UIViewController, UITextFieldDelegate {
         serialNumberField.text = item.serialNumber
         valueField.text = numberFormatter.string(from: NSNumber(value: item.valueInDollars))
         dateLabel.text = dateFormatter.string(from: item.dateCreated)
+        imageView.image = imageStore.image(forKey: item.itemKey)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -71,4 +87,18 @@ class DetailViewController: UIViewController, UITextFieldDelegate {
         return true
     }
 
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        //Get picked image from info dictionary
+        let image = info[UIImagePickerControllerOriginalImage] as! UIImage
+
+        //Store in ImageStore
+        imageStore.setImage(image, forKey: item.itemKey)
+
+        //Put the image on the screen in image view
+        imageView.image = image
+
+        //Dismuss image picker, you shall must call
+        dismiss(animated: true, completion: nil)
+
+    }
 }
